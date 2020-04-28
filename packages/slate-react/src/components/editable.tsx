@@ -181,7 +181,12 @@ export const Editable = (props: EditableProps) => {
     state.isUpdatingSelection = true
     domSelection.removeAllRanges()
 
-    const newDomRange = selection && ReactEditor.toDOMRange(editor, selection)
+    let newDomRange: any
+    try {
+      newDomRange = selection && ReactEditor.toDOMRange(editor, selection)
+    } catch (err) {
+      return
+    }
 
     if (newDomRange) {
       domSelection.addRange(newDomRange!)
