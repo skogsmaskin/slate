@@ -179,7 +179,6 @@ export const Editable = (props: EditableProps) => {
     // Otherwise the DOM selection is out of sync, so update it.
     const el = ReactEditor.toDOMNode(editor, editor)
     state.isUpdatingSelection = true
-    domSelection.removeAllRanges()
 
     let newDomRange: any
     try {
@@ -189,23 +188,19 @@ export const Editable = (props: EditableProps) => {
     }
 
     if (newDomRange) {
-      domSelection.addRange(newDomRange!)
+      domSelection.setBaseAndExtent(
+        newDomRange.startContainer,
+        newDomRange.startOffset,
+        newDomRange.endContainer,
+        newDomRange.endOffset
+      )
       const leafEl = newDomRange.startContainer.parentElement!
       scrollIntoView(leafEl, {
         scrollMode: 'if-needed',
         boundary: el,
       })
     }
-
-    setTimeout(() => {
-      // COMPAT: In Firefox, it's not enough to create a range, you also need
-      // to focus the contenteditable element too. (2016/11/16)
-      if (newDomRange && IS_FIREFOX) {
-        el.focus()
-      }
-
-      state.isUpdatingSelection = false
-    })
+    state.isUpdatingSelection = false
   })
 
   // The autoFocus TextareaHTMLAttribute doesn't do anything on a div, so it
