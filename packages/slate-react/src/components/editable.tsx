@@ -196,9 +196,18 @@ export const Editable = (props: EditableProps) => {
         newDomRange.endOffset
       )
       const leafEl = newDomRange.startContainer.parentElement!
+      // Boundary modified for Sanity
+      let boundary = null
+      if (
+        el.parentElement &&
+        el.parentElement.parentElement &&
+        el.parentElement.parentElement.parentElement
+      ) {
+        boundary = el.parentElement.parentElement.parentElement
+      }
       scrollIntoView(leafEl, {
         scrollMode: 'if-needed',
-        boundary: el,
+        boundary,
       })
     }
     state.isUpdatingSelection = false
