@@ -184,6 +184,7 @@ export const Editable = (props: EditableProps) => {
     try {
       newDomRange = selection && ReactEditor.toDOMRange(editor, selection)
     } catch (err) {
+      state.isUpdatingSelection = false
       return
     }
 
