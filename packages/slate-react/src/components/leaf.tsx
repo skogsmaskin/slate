@@ -33,6 +33,7 @@ const Leaf = (props: {
       <React.Fragment>
         <span
           contentEditable={false}
+          data-slate-placeholder
           style={{
             pointerEvents: 'none',
             display: 'inline-block',
