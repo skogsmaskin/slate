@@ -171,7 +171,8 @@ export const Editable = (props: EditableProps) => {
       hasDomSelection &&
       hasDomSelectionInEditor &&
       selection &&
-      Range.equals(ReactEditor.toSlateRange(editor, domSelection), selection)
+      Range.equals(ReactEditor.toSlateRange(editor, domSelection), selection) &&
+      domSelection.focusNode !== editorElement // Added by Sanity for Chrome compatibility issues
     ) {
       return
     }
