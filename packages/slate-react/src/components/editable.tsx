@@ -197,7 +197,7 @@ export const Editable = (props: EditableProps) => {
         newDomRange.endOffset
       )
       const leafEl = newDomRange.startContainer.parentElement!
-      // Boundary modified for Sanity
+      // Sanity: modified boundary
       let boundary = null
       if (
         el.parentElement &&
@@ -206,9 +206,54 @@ export const Editable = (props: EditableProps) => {
       ) {
         boundary = el.parentElement.parentElement.parentElement
       }
+      // Sanity: If it is a void block we want to scroll it differently,
+      // so that it always scroll to the top of the block (where the interface is)
+      let voidOffset = 0
+      let voidIsVisible = false
+      if (selection) {
+        try {
+          const [block] = Array.from(
+            Editor.nodes(editor, {
+              at: selection.focus,
+              match: n => Editor.isBlock(editor, n),
+            })
+          )[0]
+          if (block && Editor.isVoid(editor, block) && boundary) {
+            const element = ReactEditor.toDOMNode(editor, block)
+            const boundingRect = element.getBoundingClientRect()
+            voidOffset = boundingRect.height
+            // Get container properties
+            const cTop = boundary.scrollTop
+            const cBottom = cTop + boundary.clientHeight
+            // Get element properties
+            const eTop = element.offsetTop
+            const eBottom = eTop + element.clientHeight
+            // Check if in view
+            const isTotal = eTop >= cTop && eBottom <= cBottom
+            const isPartial =
+              (eTop < cTop && eBottom > cTop) ||
+              (eBottom > cBottom && eTop < cBottom)
+            voidIsVisible = isTotal || isPartial
+          }
+        } catch (err) {
+          // Nothing
+        }
+      }
       scrollIntoView(leafEl, {
-        scrollMode: 'if-needed',
+        scrollMode: voidOffset ? 'always' : 'if-needed',
+        // Sanity: special behaviour for voidblocks
+        behavior: actions => {
+          if (voidIsVisible) {
+            return
+          }
+          actions.forEach(({ el, top, left }) => {
+            el.scrollTop = top - (voidOffset ? voidOffset + 5 : 0)
+            el.scrollLeft = left
+          })
+        },
         boundary,
+        block: voidOffset ? 'start' : 'center',
+        inline: 'nearest',
       })
     }
     state.isUpdatingSelection = false
